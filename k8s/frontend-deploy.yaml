@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studentapp
+spec:
+  selector:
+    matchLabels:
+      app: studentapp
+  template:
+    metadata:
+      labels:
+        app: studentapp
+    spec:
+      containers:
+      - name: myapp
+        image: 
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: <Port>
