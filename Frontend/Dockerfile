@@ -1,35 +1,37 @@
-# Use official Maven image with OpenJDK 17
-FROM maven:latest AS builder
-
-# Set the working directory
-WORKDIR /app
-
-# Copy the project source code
-COPY . /app/
-
-# Run Maven build
-RUN mvn clean package -DskipTests
-
-# Use official Tomcat with OpenJDK 17
+# Base image
 FROM tomcat:9.0.99-jdk17
 
-# Set environment variables for database connection
-ENV MYSQL_HOST=db
-ENV MYSQL_DATABASE=studentapp
-ENV MYSQL_USER=sushant
-ENV MYSQL_PASSWORD=sushant123
+# Set working directory
+WORKDIR /app
 
-# Copy MySQL Connector (ensure it's in your project root)
-COPY mysql-connector.jar /usr/local/tomcat/lib/
+# Install Git and Maven
+RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-# Copy the built WAR file from the builder stage
-COPY --from=builder /app/target/studentapp.war /usr/local/tomcat/webapps/
+# Clone the Student UI repository
+RUN git clone https://github.com/Pritam-Khergade/student-ui.git
 
-# Ensure Tomcat has proper permissions
-RUN chown -R tomcat:tomcat /usr/local/tomcat/webapps /usr/local/tomcat/lib
+# Build the application
+WORKDIR /app/student-ui
+RUN mvn clean package
 
-# Expose Tomcat's default port
+# Copy the built WAR file to Tomcat webapps directory
+RUN cp target/studentapp-2.2-SNAPSHOT.war /usr/local/tomcat/webapps/studentapp.war
+
+# Download MariaDB JDBC Driver
+RUN curl -o /usr/local/tomcat/lib/mariadb-java-client-2.7.5.jar \
+    https://downloads.mariadb.com/Connectors/java/connector-java-2.7.5/mariadb-java-client-2.7.5.jar
+
+# Configure Tomcat Context.xml
+RUN echo '<Context>' \
+    '<Resource name="jdbc/TestDB" auth="Container" type="javax.sql.DataSource"' \
+    'maxTotal="500" maxIdle="30" maxWaitMillis="1000"' \
+    'username="sushant" password="sushant123"' \
+    'driverClassName="org.mariadb.jdbc.Driver"' \
+    'url="jdbc:mariadb://mariadb:3306/studentapp?useUnicode=true&amp;characterEncoding=utf8"/>' \
+    '</Context>' > /usr/local/tomcat/conf/context.xml
+
+# Expose Tomcat port
 EXPOSE 8080
 
-# Start Tomcat server
+# Start Tomcat
 CMD ["catalina.sh", "run"]
