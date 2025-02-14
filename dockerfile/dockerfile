@@ -1,0 +1,33 @@
+# Use an official Tomcat base image
+FROM tomcat:9.0.99-jdk17
+
+# Set environment variables
+ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+
+# Install required packages
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and configure MariaDB JDBC driver
+RUN curl -o $CATALINA_HOME/lib/mariadb-java-client-3.3.2.jar \
+    https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.2/mariadb-java-client-3.3.2.jar
+
+# Configure Tomcat context.xml for database connection
+COPY context.xml $CATALINA_HOME/conf/context.xml
+
+# Clone StudentApp and build it
+RUN git clone https://github.com/Pritam-Khergade/student-ui.git \
+    && cd student-ui \
+    && mvn clean package \
+    && mv target/studentapp-2.2-SNAPSHOT.war $CATALINA_HOME/webapps/studentapp.war
+
+# Expose Tomcat's default port
+EXPOSE 8080
+
+# Start Tomcat
+CMD ["catalina.sh", "run"]

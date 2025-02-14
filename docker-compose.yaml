@@ -1,14 +1,10 @@
 version: '3.8'
-
 services:
-  db:
-    build:
-      context: .
-      dockerfile: Dockerfile-db
-    container_name: studentapp_db
-    restart: always
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: studentapp
       MYSQL_USER: sushant
       MYSQL_PASSWORD: sushant123
@@ -18,20 +14,12 @@ services:
       - db_data:/var/lib/mysql
 
   tomcat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: studentapp_tomcat
-    restart: always
-    depends_on:
-      - db
+    build: .
+    container_name: studentapp
     ports:
       - "8080:8080"
-    environment:
-      MYSQL_HOST: db
-      MYSQL_DATABASE: studentapp
-      MYSQL_USER: sushant
-      MYSQL_PASSWORD: sushant123
+    depends_on:
+      - mariadb
 
 volumes:
   db_data:

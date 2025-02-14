@@ -67,7 +67,7 @@ vim context.xml
 
 <Resource name="jdbc/TestDB" auth="Container" type="javax.sql.DataSource"
            maxTotal="500" maxIdle="30" maxWaitMillis="1000"
-           username="sushant" password="sonbarse17" driverClassName="com.mysql.cj.jdbc.Driver"
+           username="sushant" password="sonbarse17" driverClassName="com.mysql.jdbc.Driver"
            url="jdbc:mysql://localhost:3306/studentapp?useUnicode=yes&amp;characterEncoding=utf8"/>
 
 ## add user name and password
