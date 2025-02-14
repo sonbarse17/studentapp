@@ -57,7 +57,9 @@ cd ~/apache-tomcat-9.0.98/webapps/
 ## add mysql-connector 
 
 cd ~/apache-tomcat-9.0.98/lib/
-curl -O https://s3-us-west-2.amazonaws.com/studentapi-cit/mysql-connector.jar
+curl -O https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.33.jar
+mv mysql-connector-java-8.0.33.jar ~/apache-tomcat-9.0.98/lib/mysql-connector.jar
+
 
 # add configuration in tomcat
 cd ~/apache-tomcat-9.0.98/conf
@@ -65,7 +67,7 @@ vim context.xml
 
 <Resource name="jdbc/TestDB" auth="Container" type="javax.sql.DataSource"
            maxTotal="500" maxIdle="30" maxWaitMillis="1000"
-           username="sushant" password="sonbarse17" driverClassName="com.mysql.jdbc.Driver"
+           username="sushant" password="sonbarse17" driverClassName="com.mysql.cj.jdbc.Driver"
            url="jdbc:mysql://localhost:3306/studentapp?useUnicode=yes&amp;characterEncoding=utf8"/>
 
 ## add user name and password
